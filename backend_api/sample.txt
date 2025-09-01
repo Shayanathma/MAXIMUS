@@ -1,0 +1,4 @@
+This folder is part of the MAXIMUS project.
+
+Add your files for this module/role here.
+Delete this file once you add actual code.
