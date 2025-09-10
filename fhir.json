@@ -1,0 +1,496 @@
+{
+  "resourceType": "ConceptMap",
+  "id": "namaste-to-icd11-mapping",
+  "url": "http://example.org/fhir/ConceptMap/NAMASTE-to-ICD11",
+  "identifier": [
+    {
+      "use": "official",
+      "system": "http://example.org/fhir/conceptmap-identifiers",
+      "value": "namaste-icd11-cm-1.0"
+    }
+  ],
+  "version": "1.0.0",
+  "name": "NAMASTEToICD11ConceptMap",
+  "title": "NAMASTE to ICD-11 Terminology Mapping",
+  "status": "active",
+  "experimental": false,
+  "date": "2025-09-09T11:00:00+05:30",
+  "publisher": "Ministry of AYUSH, Government of India",
+  "contact": [
+    {
+      "name": "Ministry of AYUSH",
+      "telecom": [
+        {
+          "system": "url",
+          "value": "https://ayush.gov.in"
+        }
+      ]
+    }
+  ],
+  "description": "Mapping between NAMASTE (National AYUSH Morbidity & Standardized Terminologies Electronic) codes and ICD-11 Traditional Medicine Module 2 (TM2) and Biomedicine codes for interoperability in electronic medical records.",
+  "jurisdiction": [
+    {
+      "coding": [
+        {
+          "system": "urn:iso:std:iso:3166",
+          "code": "IN",
+          "display": "India"
+        }
+      ]
+    }
+  ],
+  "purpose": "To enable dual-coding of traditional medicine diagnoses in FHIR-compliant EMR systems, supporting both traditional AYUSH terminologies and international ICD-11 classifications for interoperability, analytics, and insurance claims processing.",
+  "copyright": "\u00c2\u00a9 2025 Ministry of AYUSH, Government of India. This ConceptMap is made available under the terms of the Creative Commons Attribution 4.0 International License.",
+  "sourceCanonical": "http://terminology.gov.in/CodeSystem/namaste",
+  "targetCanonical": "http://id.who.int/icd/release/11/mms",
+  "group": [
+    {
+      "source": "NAMASTE",
+      "target": "ICD-11",
+      "element": [
+        {
+          "code": "AAC-27(SM83)",
+          "display": "pratitUnI",
+          "target": [
+            {
+              "code": "DC31.0,DC31.1,DC31.2,DC31.3,DC31.4,DC31.5,DC31.Y,DC31.Z,DC32.0,DC32.1,DC32.2,DC32.3,DC32.4,DC32.5,DC32.Y,DC32.Z,DC33,DC34",
+              "display": "Pancreatitis",
+              "equivalence": "equivalent",
+              "extension": [
+                {
+                  "url": "http://example.org/fhir/ConceptMap/extension/similarity",
+                  "valueDecimal": 66.66666666666667
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "code": "SK21(AAC-30)",
+          "display": "pa~gguH",
+          "target": [
+            {
+              "code": "1B93.0,1B93.1,1B93.2,1B93.3,1B93.Y,1B93.Z",
+              "display": "Plague",
+              "equivalence": "equivalent",
+              "extension": [
+                {
+                  "url": "http://example.org/fhir/ConceptMap/extension/similarity",
+                  "valueDecimal": 66.66666666666667
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "code": "SM37(EB-2)",
+          "display": "atisAraH",
+          "target": [
+            {
+              "code": "9B10.00,9B10.01,9B10.02,9B10.0Y,9B10.0Z,9B10.10,9B10.1Y,9B10.1Z,9B10.20,9B10.21,9B10.22,9B10.23,9B10.2Y,9B10.Z",
+              "display": "Cataract",
+              "equivalence": "equivalent",
+              "extension": [
+                {
+                  "url": "http://example.org/fhir/ConceptMap/extension/similarity",
+                  "valueDecimal": 62.5
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "code": "SM41(ED-3)",
+          "display": "kAmalA",
+          "target": [
+            {
+              "code": "1F40.0,1F40.Y,1F40.Z,1F41.0,1F41.Y,1F41.Z,1F42.0,1F42.Y,1F42.Z,1F43,1F44,1F45,1F4Z",
+              "display": "Malaria",
+              "equivalence": "equivalent",
+              "extension": [
+                {
+                  "url": "http://example.org/fhir/ConceptMap/extension/similarity",
+                  "valueDecimal": 61.53846153846154
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "code": "ED-3.8",
+          "display": "kAmalA-ariShTaH",
+          "target": [
+            {
+              "code": "1F40.0,1F40.Y,1F40.Z,1F41.0,1F41.Y,1F41.Z,1F42.0,1F42.Y,1F42.Z,1F43,1F44,1F45,1F4Z",
+              "display": "Malaria",
+              "equivalence": "equivalent",
+              "extension": [
+                {
+                  "url": "http://example.org/fhir/ConceptMap/extension/similarity",
+                  "valueDecimal": 66.66666666666667
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "code": "SN4A(ED-4.2.7)",
+          "display": "sidhmaH",
+          "target": [
+            {
+              "code": "CA23.00,CA23.01,CA23.02,CA23.10,CA23.11,CA23.12,CA23.20,CA23.21,CA23.22,CA23.30,CA23.31,CA23.32",
+              "display": "Asthma",
+              "equivalence": "equivalent",
+              "extension": [
+                {
+                  "url": "http://example.org/fhir/ConceptMap/extension/similarity",
+                  "valueDecimal": 61.53846153846154
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "code": "ED-6",
+          "display": "masUrikA",
+          "target": [
+            {
+              "code": "1F40.0,1F40.Y,1F40.Z,1F41.0,1F41.Y,1F41.Z,1F42.0,1F42.Y,1F42.Z,1F43,1F44,1F45,1F4Z",
+              "display": "Malaria",
+              "equivalence": "equivalent",
+              "extension": [
+                {
+                  "url": "http://example.org/fhir/ConceptMap/extension/similarity",
+                  "valueDecimal": 66.66666666666667
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "code": "ED-8(SP11)",
+          "display": "vAtaraktam",
+          "target": [
+            {
+              "code": "9B10.00,9B10.01,9B10.02,9B10.0Y,9B10.0Z,9B10.10,9B10.1Y,9B10.1Z,9B10.20,9B10.21,9B10.22,9B10.23,9B10.2Y,9B10.Z",
+              "display": "Cataract",
+              "equivalence": "equivalent",
+              "extension": [
+                {
+                  "url": "http://example.org/fhir/ConceptMap/extension/similarity",
+                  "valueDecimal": 66.66666666666667
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "code": "EF-2.4.3 (SM8D)",
+          "display": "hastimehaH",
+          "target": [
+            {
+              "code": "CA23.00,CA23.01,CA23.02,CA23.10,CA23.11,CA23.12,CA23.20,CA23.21,CA23.22,CA23.30,CA23.31,CA23.32",
+              "display": "Asthma",
+              "equivalence": "equivalent",
+              "extension": [
+                {
+                  "url": "http://example.org/fhir/ConceptMap/extension/similarity",
+                  "valueDecimal": 62.5
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "code": "EI-4.2",
+          "display": "aShThIlikA",
+          "target": [
+            {
+              "code": "CA23.00,CA23.01,CA23.02,CA23.10,CA23.11,CA23.12,CA23.20,CA23.21,CA23.22,CA23.30,CA23.31,CA23.32",
+              "display": "Asthma",
+              "equivalence": "equivalent",
+              "extension": [
+                {
+                  "url": "http://example.org/fhir/ConceptMap/extension/similarity",
+                  "valueDecimal": 62.5
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "code": "SM8C (EJ-2)",
+          "display": "aSmarI",
+          "target": [
+            {
+              "code": "CA23.00,CA23.01,CA23.02,CA23.10,CA23.11,CA23.12,CA23.20,CA23.21,CA23.22,CA23.30,CA23.31,CA23.32",
+              "display": "Asthma",
+              "equivalence": "equivalent",
+              "extension": [
+                {
+                  "url": "http://example.org/fhir/ConceptMap/extension/similarity",
+                  "valueDecimal": 66.66666666666667
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "code": "EK-3.15",
+          "display": "karNamUlaSothaH",
+          "target": [
+            {
+              "code": "3A01.0,3A01.1,3A01.2,3A01.30,3A01.3Y,3A01.3Z,3A01.4,3A01.5,3A01.Y,3A01.Z,3A02.0,3A02.1,3A02.2,3A02.3,3A02.4,3A02.Y,3A02.Z,3A03.0,3A03.1,3A03.2,3A03.3,3A03.40,3A03.41,3A03.42,3A03.4Y,3A03.5,3A03.6,3A03.Y,3A10.00,3A10.0Y,3A10.0Z,3A10.1,3A10.2,3A10.3,3A10.Y,3A10.Z,3A1Y,3A20.0,3A20.1,3A20.2,3A20.3,3A20.4,3A20.5,3A20.Y,3A20.Z,3A21.0,3A21.1,3A21.2,3A21.Y,3A21.Z,3A2Z,3A4Z,3A70.0,3A70.10,3A70.11,3A70.12,3A70.1Y,3A70.1Z,3A70.Z,3A71.0,3A71.1,3A71.2,3A71.Y,3A71.Z,3A72.00,3A72.01,3A72.0Y,3A72.0Z,3A72.1,3A72.Z,3A73,3A90,3A94",
+              "display": "Other anaemias",
+              "equivalence": "equivalent",
+              "extension": [
+                {
+                  "url": "http://example.org/fhir/ConceptMap/extension/similarity",
+                  "valueDecimal": 62.06896551724138
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "code": "EK-3.16",
+          "display": "SiraSothaH",
+          "target": [
+            {
+              "code": "CA23.00,CA23.01,CA23.02,CA23.10,CA23.11,CA23.12,CA23.20,CA23.21,CA23.22,CA23.30,CA23.31,CA23.32",
+              "display": "Asthma",
+              "equivalence": "equivalent",
+              "extension": [
+                {
+                  "url": "http://example.org/fhir/ConceptMap/extension/similarity",
+                  "valueDecimal": 62.5
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "code": "EK-4.9",
+          "display": "jalodaraH",
+          "target": [
+            {
+              "code": "1F40.0,1F40.Y,1F40.Z,1F41.0,1F41.Y,1F41.Z,1F42.0,1F42.Y,1F42.Z,1F43,1F44,1F45,1F4Z",
+              "display": "Malaria",
+              "equivalence": "equivalent",
+              "extension": [
+                {
+                  "url": "http://example.org/fhir/ConceptMap/extension/similarity",
+                  "valueDecimal": 62.5
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "code": "HA-5 (SK7Y)",
+          "display": "alajI",
+          "target": [
+            {
+              "code": "1F40.0,1F40.Y,1F40.Z,1F41.0,1F41.Y,1F41.Z,1F42.0,1F42.Y,1F42.Z,1F43,1F44,1F45,1F4Z",
+              "display": "Malaria",
+              "equivalence": "equivalent",
+              "extension": [
+                {
+                  "url": "http://example.org/fhir/ConceptMap/extension/similarity",
+                  "valueDecimal": 66.66666666666667
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "code": "HB-5 (SK6U)",
+          "display": "arSovartma",
+          "target": [
+            {
+              "code": "CA23.00,CA23.01,CA23.02,CA23.10,CA23.11,CA23.12,CA23.20,CA23.21,CA23.22,CA23.30,CA23.31,CA23.32",
+              "display": "Asthma",
+              "equivalence": "equivalent",
+              "extension": [
+                {
+                  "url": "http://example.org/fhir/ConceptMap/extension/similarity",
+                  "valueDecimal": 62.5
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "code": "HG-3.9.6",
+          "display": "CatrakI",
+          "target": [
+            {
+              "code": "9B10.00,9B10.01,9B10.02,9B10.0Y,9B10.0Z,9B10.10,9B10.1Y,9B10.1Z,9B10.20,9B10.21,9B10.22,9B10.23,9B10.2Y,9B10.Z",
+              "display": "Cataract",
+              "equivalence": "equivalent",
+              "extension": [
+                {
+                  "url": "http://example.org/fhir/ConceptMap/extension/similarity",
+                  "valueDecimal": 66.66666666666667
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "code": "I-13 (SK9Y)",
+          "display": "dIptaH",
+          "target": [
+            {
+              "code": "1C17.00,1C17.0Y,1C17.0Z,1C17.1,1C17.2,1C17.3,1C17.Y,1C17.Z",
+              "display": "Diphtheria",
+              "equivalence": "equivalent",
+              "extension": [
+                {
+                  "url": "http://example.org/fhir/ConceptMap/extension/similarity",
+                  "valueDecimal": 62.5
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "code": "M",
+          "display": "bAlarogaH",
+          "target": [
+            {
+              "code": "1F40.0,1F40.Y,1F40.Z,1F41.0,1F41.Y,1F41.Z,1F42.0,1F42.Y,1F42.Z,1F43,1F44,1F45,1F4Z",
+              "display": "Malaria",
+              "equivalence": "equivalent",
+              "extension": [
+                {
+                  "url": "http://example.org/fhir/ConceptMap/extension/similarity",
+                  "valueDecimal": 62.5
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "code": "SN48 (O-6)",
+          "display": "alasaH",
+          "target": [
+            {
+              "code": "1F40.0,1F40.Y,1F40.Z,1F41.0,1F41.Y,1F41.Z,1F42.0,1F42.Y,1F42.Z,1F43,1F44,1F45,1F4Z",
+              "display": "Malaria",
+              "equivalence": "equivalent",
+              "extension": [
+                {
+                  "url": "http://example.org/fhir/ConceptMap/extension/similarity",
+                  "valueDecimal": 61.53846153846154
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "code": "SN4T (O-12)",
+          "display": "kakShAH",
+          "target": [
+            {
+              "code": "CA23.00,CA23.01,CA23.02,CA23.10,CA23.11,CA23.12,CA23.20,CA23.21,CA23.22,CA23.30,CA23.31,CA23.32",
+              "display": "Asthma",
+              "equivalence": "equivalent",
+              "extension": [
+                {
+                  "url": "http://example.org/fhir/ConceptMap/extension/similarity",
+                  "valueDecimal": 61.53846153846154
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "code": "SS-2.1",
+          "display": "kAlikA",
+          "target": [
+            {
+              "code": "1F40.0,1F40.Y,1F40.Z,1F41.0,1F41.Y,1F41.Z,1F42.0,1F42.Y,1F42.Z,1F43,1F44,1F45,1F4Z",
+              "display": "Malaria",
+              "equivalence": "equivalent",
+              "extension": [
+                {
+                  "url": "http://example.org/fhir/ConceptMap/extension/similarity",
+                  "valueDecimal": 61.53846153846154
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "code": "SS-2.2",
+          "display": "marmarikA",
+          "target": [
+            {
+              "code": "1F40.0,1F40.Y,1F40.Z,1F41.0,1F41.Y,1F41.Z,1F42.0,1F42.Y,1F42.Z,1F43,1F44,1F45,1F4Z",
+              "display": "Malaria",
+              "equivalence": "equivalent",
+              "extension": [
+                {
+                  "url": "http://example.org/fhir/ConceptMap/extension/similarity",
+                  "valueDecimal": 75.0
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "code": "VD-5",
+          "display": "asthisAraH",
+          "target": [
+            {
+              "code": "CA23.00,CA23.01,CA23.02,CA23.10,CA23.11,CA23.12,CA23.20,CA23.21,CA23.22,CA23.30,CA23.31,CA23.32",
+              "display": "Asthma",
+              "equivalence": "equivalent",
+              "extension": [
+                {
+                  "url": "http://example.org/fhir/ConceptMap/extension/similarity",
+                  "valueDecimal": 62.5
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "code": "VH-5",
+          "display": "svastha",
+          "target": [
+            {
+              "code": "CA23.00,CA23.01,CA23.02,CA23.10,CA23.11,CA23.12,CA23.20,CA23.21,CA23.22,CA23.30,CA23.31,CA23.32",
+              "display": "Asthma",
+              "equivalence": "equivalent",
+              "extension": [
+                {
+                  "url": "http://example.org/fhir/ConceptMap/extension/similarity",
+                  "valueDecimal": 76.92307692307692
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "code": "AAC-27(SM83)",
+          "display": "pratitUnI",
+          "target": [
+            {
+              "code": "DC31.0",
+              "display": "Pancreatitis",
+              "equivalence": "equivalent",
+              "extension": [
+                {
+                  "url": "http://example.org/fhir/ConceptMap/extension/similarity",
+                  "valueDecimal": 66.67
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
