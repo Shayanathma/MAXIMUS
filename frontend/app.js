@@ -3,7 +3,7 @@ let conceptMaps = [];
 let currentEditingId = null;
 let currentTab = 'home';
 
-// API Base URL - adjust this to match your FastAPI server
+// API Base URL - matches your FastAPI server
 const API_BASE_URL = 'http://127.0.0.1:8000';
 
 // Initialize the application
@@ -18,6 +18,13 @@ async function initializeApp() {
     await checkApiHealth();
     await loadConceptMaps();
     updateStats();
+    // Initialize form with one empty element
+    setTimeout(() => {
+        const elementsContainer = document.getElementById('elements-container');
+        if (elementsContainer && elementsContainer.children.length === 0) {
+            addElementToForm();
+        }
+    }, 100);
 }
 
 // Setup all event listeners
@@ -40,12 +47,6 @@ function setupEventListeners() {
     const createForm = document.getElementById('create-form');
     if (createForm) {
         createForm.addEventListener('submit', handleCreateConceptMap);
-    }
-
-    // Update ConceptMap form
-    const updateForm = document.getElementById('update-form');
-    if (updateForm) {
-        updateForm.addEventListener('submit', handleUpdateConceptMap);
     }
 
     // Add element button
@@ -80,6 +81,13 @@ function switchTab(tabName) {
     // Load data for specific tabs
     if (tabName === 'manage') {
         displayConceptMaps();
+    } else if (tabName === 'create') {
+        // Reset editing mode when switching to create
+        currentEditingId = null;
+        const formTitle = document.querySelector('#create h2');
+        if (formTitle) {
+            formTitle.textContent = 'Create New ConceptMap';
+        }
     }
 }
 
@@ -101,8 +109,14 @@ async function makeApiRequest(endpoint, method = 'GET', data = null) {
         const response = await fetch(`${API_BASE_URL}${endpoint}`, config);
         
         if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.detail || `HTTP error! status: ${response.status}`);
+            let errorMessage = `HTTP error! status: ${response.status}`;
+            try {
+                const errorData = await response.json();
+                errorMessage = errorData.detail || errorMessage;
+            } catch (e) {
+                // If error response is not JSON, use default message
+            }
+            throw new Error(errorMessage);
         }
 
         const result = await response.json();
@@ -196,24 +210,24 @@ function displaySearchResults(conceptMap) {
                 </div>
             </div>
             <div class="card__body">
-                <div class="info-grid">
-                    <div class="info-item">
-                        <label>ID:</label>
-                        <span>${conceptMap.id}</span>
+                <div class="result-metadata">
+                    <div class="metadata-item">
+                        <span class="metadata-label">ID:</span>
+                        <span class="metadata-value">${conceptMap.id}</span>
                     </div>
-                    <div class="info-item">
-                        <label>Status:</label>
-                        <span class="badge badge--${conceptMap.status === 'active' ? 'success' : 'warning'}">
+                    <div class="metadata-item">
+                        <span class="metadata-label">Status:</span>
+                        <span class="status status--${conceptMap.status === 'active' ? 'success' : 'warning'}">
                             ${conceptMap.status}
                         </span>
                     </div>
-                    <div class="info-item">
-                        <label>Version:</label>
-                        <span>${conceptMap.version || 'N/A'}</span>
+                    <div class="metadata-item">
+                        <span class="metadata-label">Version:</span>
+                        <span class="metadata-value">${conceptMap.version || 'N/A'}</span>
                     </div>
-                    <div class="info-item">
-                        <label>Publisher:</label>
-                        <span>${conceptMap.publisher || 'N/A'}</span>
+                    <div class="metadata-item">
+                        <span class="metadata-label">Publisher:</span>
+                        <span class="metadata-value">${conceptMap.publisher || 'N/A'}</span>
                     </div>
                 </div>
                 ${renderConceptMapElements(conceptMap)}
@@ -245,9 +259,9 @@ async function handlePatientSearch(event) {
 
 function displayPatientSearchResults(matches) {
     const resultsContainer = document.getElementById('patient-search-results');
-    if (!resultsContainer || !matches) return;
+    if (!resultsContainer) return;
 
-    if (matches.length === 0) {
+    if (!matches || matches.length === 0) {
         resultsContainer.innerHTML = `
             <div class="card">
                 <div class="card__body">
@@ -264,10 +278,10 @@ function displayPatientSearchResults(matches) {
                 <h4>${match.display}</h4>
                 <p><strong>Source Code:</strong> ${match.sourceCode}</p>
                 ${match.targets ? match.targets.map(target => `
-                    <div class="target-info">
-                        <p><strong>Target:</strong> ${target.display} (${target.targetCode})</p>
-                        <p><strong>Equivalence:</strong> ${target.equivalence}</p>
-                        ${target.similarity ? `<p><strong>Similarity:</strong> ${target.similarity}%</p>` : ''}
+                    <div class="target-item">
+                        <span><strong>Target:</strong> ${target.display} (${target.targetCode})</span>
+                        <span><strong>Equivalence:</strong> ${target.equivalence}</span>
+                        ${target.similarity ? `<span class="similarity-score">${target.similarity}%</span>` : ''}
                     </div>
                 `).join('') : ''}
             </div>
@@ -285,41 +299,31 @@ async function handleCreateConceptMap(event) {
     const conceptMap = buildConceptMapFromForm(formData);
 
     try {
-        const newConceptMap = await makeApiRequest('/conceptmaps', 'POST', conceptMap);
-        showToast('ConceptMap created successfully', 'success');
+        if (currentEditingId) {
+            // Update existing ConceptMap
+            await makeApiRequest(`/conceptmaps/${currentEditingId}`, 'PUT', conceptMap);
+            showToast('ConceptMap updated successfully', 'success');
+            currentEditingId = null;
+            
+            // Reset form title
+            const formTitle = document.querySelector('#create h2');
+            if (formTitle) {
+                formTitle.textContent = 'Create New ConceptMap';
+            }
+        } else {
+            // Create new ConceptMap
+            await makeApiRequest('/conceptmaps', 'POST', conceptMap);
+            showToast('ConceptMap created successfully', 'success');
+        }
+        
         await loadConceptMaps();
         event.target.reset();
+        clearElements();
+        addElementToForm(); // Add one empty element
         
-        // Clear dynamic elements
-        const elementsContainer = document.getElementById('elements-container');
-        if (elementsContainer) {
-            elementsContainer.innerHTML = '';
-            addElementToForm(); // Add one empty element
-        }
     } catch (error) {
-        showToast('Failed to create ConceptMap', 'error');
-    }
-}
-
-// Update ConceptMap functionality
-async function handleUpdateConceptMap(event) {
-    event.preventDefault();
-    
-    if (!currentEditingId) {
-        showToast('No ConceptMap selected for editing', 'error');
-        return;
-    }
-
-    const formData = new FormData(event.target);
-    const conceptMap = buildConceptMapFromForm(formData);
-
-    try {
-        const updatedConceptMap = await makeApiRequest(`/conceptmaps/${currentEditingId}`, 'PUT', conceptMap);
-        showToast('ConceptMap updated successfully', 'success');
-        await loadConceptMaps();
-        currentEditingId = null;
-    } catch (error) {
-        showToast('Failed to update ConceptMap', 'error');
+        const action = currentEditingId ? 'update' : 'create';
+        showToast(`Failed to ${action} ConceptMap`, 'error');
     }
 }
 
@@ -331,20 +335,20 @@ function buildConceptMapFromForm(formData) {
         name: formData.get('name'),
         title: formData.get('title'),
         status: formData.get('status'),
-        version: formData.get('version'),
-        publisher: formData.get('publisher'),
+        version: formData.get('version') || undefined,
+        publisher: formData.get('publisher') || undefined,
         group: [{
-            source: formData.get('source') || 'NAMASTE',
-            target: formData.get('target') || 'ICD-11',
+            source: 'NAMASTE',
+            target: 'ICD-11',
             element: []
         }]
     };
 
     // Collect elements from the form
-    const elements = document.querySelectorAll('.element-row');
-    elements.forEach(elementRow => {
-        const code = elementRow.querySelector('[name^="element-code"]').value;
-        const display = elementRow.querySelector('[name^="element-display"]').value;
+    const elements = document.querySelectorAll('.element-group');
+    elements.forEach(elementDiv => {
+        const code = elementDiv.querySelector('[name^="element-code"]').value;
+        const display = elementDiv.querySelector('[name^="element-display"]').value;
         
         if (code && display) {
             const element = {
@@ -354,12 +358,12 @@ function buildConceptMapFromForm(formData) {
             };
 
             // Collect targets for this element
-            const targetRows = elementRow.querySelectorAll('.target-row');
-            targetRows.forEach(targetRow => {
-                const targetCode = targetRow.querySelector('[name^="target-code"]').value;
-                const targetDisplay = targetRow.querySelector('[name^="target-display"]').value;
-                const equivalence = targetRow.querySelector('[name^="target-equivalence"]').value;
-                const similarity = targetRow.querySelector('[name^="target-similarity"]').value;
+            const targetDivs = elementDiv.querySelectorAll('.target-group');
+            targetDivs.forEach(targetDiv => {
+                const targetCode = targetDiv.querySelector('[name^="target-code"]').value;
+                const targetDisplay = targetDiv.querySelector('[name^="target-display"]').value;
+                const equivalence = targetDiv.querySelector('[name^="target-equivalence"]').value;
+                const similarity = targetDiv.querySelector('[name^="target-similarity"]').value;
 
                 if (targetCode && targetDisplay) {
                     const target = {
@@ -379,7 +383,9 @@ function buildConceptMapFromForm(formData) {
                 }
             });
 
-            conceptMap.group[0].element.push(element);
+            if (element.target.length > 0) {
+                conceptMap.group[0].element.push(element);
+            }
         }
     });
 
@@ -392,164 +398,148 @@ function addElementToForm() {
     if (!container) return;
 
     const elementIndex = container.children.length;
-    const elementHtml = `
-        <div class="element-row card">
-            <div class="card__header">
-                <h4>Element ${elementIndex + 1}</h4>
-                <button type="button" class="btn btn--danger btn--small" onclick="removeElement(this)">
-                    Remove
-                </button>
+    const elementDiv = document.createElement('div');
+    elementDiv.className = 'element-group';
+    elementDiv.innerHTML = `
+        <div class="element-group-header">
+            <h4 class="element-group-title">Element ${elementIndex + 1}</h4>
+            <button type="button" class="btn btn--secondary btn--sm" onclick="removeElement(this)">
+                Remove
+            </button>
+        </div>
+        <div class="form-grid">
+            <div class="form-group">
+                <label class="form-label">Source Code:</label>
+                <input type="text" name="element-code-${elementIndex}" class="form-control" required>
             </div>
-            <div class="card__body">
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>Source Code:</label>
-                        <input type="text" name="element-code-${elementIndex}" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Display:</label>
-                        <input type="text" name="element-display-${elementIndex}" required>
-                    </div>
-                </div>
-                <div class="targets-container">
-                    <h5>Targets:</h5>
-                    <div class="target-row">
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label>Target Code:</label>
-                                <input type="text" name="target-code-${elementIndex}-0" required>
-                            </div>
-                            <div class="form-group">
-                                <label>Target Display:</label>
-                                <input type="text" name="target-display-${elementIndex}-0" required>
-                            </div>
-                            <div class="form-group">
-                                <label>Equivalence:</label>
-                                <select name="target-equivalence-${elementIndex}-0">
-                                    <option value="equivalent">Equivalent</option>
-                                    <option value="narrower">Narrower</option>
-                                    <option value="broader">Broader</option>
-                                    <option value="inexact">Inexact</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label>Similarity (%):</label>
-                                <input type="number" name="target-similarity-${elementIndex}-0" min="0" max="100" step="0.1">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <button type="button" class="btn btn--secondary btn--small" onclick="addTarget(this)">
-                    Add Target
-                </button>
+            <div class="form-group">
+                <label class="form-label">Display Name:</label>
+                <input type="text" name="element-display-${elementIndex}" class="form-control" required>
             </div>
         </div>
+        <div class="targets-container">
+            <h5>Target Mappings:</h5>
+        </div>
+        <button type="button" class="btn btn--secondary btn--sm" onclick="addTarget(this)">
+            Add Target
+        </button>
     `;
 
-    container.insertAdjacentHTML('beforeend', elementHtml);
+    container.appendChild(elementDiv);
+    
+    // Add one default target
+    addTarget(elementDiv.querySelector('button'));
 }
 
 function removeElement(button) {
-    button.closest('.element-row').remove();
+    button.closest('.element-group').remove();
 }
 
 function addTarget(button) {
-    const targetsContainer = button.previousElementSibling;
-    const elementRow = button.closest('.element-row');
-    const elementIndex = Array.from(elementRow.parentNode.children).indexOf(elementRow);
-    const targetIndex = targetsContainer.children.length;
+    const elementDiv = button.closest('.element-group');
+    const targetsContainer = elementDiv.querySelector('.targets-container');
+    const elementIndex = Array.from(elementDiv.parentNode.children).indexOf(elementDiv);
+    const targetIndex = targetsContainer.children.length - 1; // -1 for the h5
 
-    const targetHtml = `
-        <div class="target-row">
-            <div class="form-row">
-                <div class="form-group">
-                    <label>Target Code:</label>
-                    <input type="text" name="target-code-${elementIndex}-${targetIndex}" required>
-                </div>
-                <div class="form-group">
-                    <label>Target Display:</label>
-                    <input type="text" name="target-display-${elementIndex}-${targetIndex}" required>
-                </div>
-                <div class="form-group">
-                    <label>Equivalence:</label>
-                    <select name="target-equivalence-${elementIndex}-${targetIndex}">
-                        <option value="equivalent">Equivalent</option>
-                        <option value="narrower">Narrower</option>
-                        <option value="broader">Broader</option>
-                        <option value="inexact">Inexact</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>Similarity (%):</label>
-                    <input type="number" name="target-similarity-${elementIndex}-${targetIndex}" min="0" max="100" step="0.1">
-                </div>
-                <div class="form-group">
-                    <button type="button" class="btn btn--danger btn--small" onclick="removeTarget(this)">
-                        Remove
-                    </button>
-                </div>
+    const targetDiv = document.createElement('div');
+    targetDiv.className = 'target-group';
+    targetDiv.innerHTML = `
+        <div class="target-group-header">
+            <span class="target-group-title">Target ${targetIndex + 1}</span>
+            <button type="button" class="btn btn--secondary btn--sm" onclick="removeTarget(this)">
+                Remove
+            </button>
+        </div>
+        <div class="form-grid">
+            <div class="form-group">
+                <label class="form-label">Target Code:</label>
+                <input type="text" name="target-code-${elementIndex}-${targetIndex}" class="form-control" required>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Target Display:</label>
+                <input type="text" name="target-display-${elementIndex}-${targetIndex}" class="form-control" required>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Equivalence:</label>
+                <select name="target-equivalence-${elementIndex}-${targetIndex}" class="form-control">
+                    <option value="equivalent">Equivalent</option>
+                    <option value="narrower">Narrower</option>
+                    <option value="broader">Broader</option>
+                    <option value="inexact">Inexact</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Similarity (%):</label>
+                <input type="number" name="target-similarity-${elementIndex}-${targetIndex}" class="form-control" min="0" max="100" step="0.1">
             </div>
         </div>
     `;
 
-    targetsContainer.insertAdjacentHTML('beforeend', targetHtml);
+    targetsContainer.appendChild(targetDiv);
 }
 
 function removeTarget(button) {
-    button.closest('.target-row').remove();
+    button.closest('.target-group').remove();
+}
+
+function clearElements() {
+    const container = document.getElementById('elements-container');
+    if (container) {
+        container.innerHTML = '';
+    }
 }
 
 // Manage ConceptMaps
 function displayConceptMaps() {
     const container = document.getElementById('conceptmaps-list');
-    if (!container || !conceptMaps.length) {
-        if (container) {
-            container.innerHTML = `
-                <div class="card">
-                    <div class="card__body">
-                        <p>No ConceptMaps available.</p>
-                    </div>
+    if (!container) return;
+
+    if (!conceptMaps.length) {
+        container.innerHTML = `
+            <div class="card">
+                <div class="card__body">
+                    <p>No ConceptMaps available.</p>
                 </div>
-            `;
-        }
+            </div>
+        `;
         return;
     }
 
     const conceptMapsHtml = conceptMaps.map(cm => `
         <div class="card">
-            <div class="card__header">
+            <div class="result-header">
                 <h3>${cm.title || cm.name}</h3>
-                <div class="card__actions">
-                    <button class="btn btn--secondary" onclick="viewJsonDetails('${cm.id}')">
+                <div class="table-actions">
+                    <button class="btn btn--secondary btn--sm" onclick="viewJsonDetails('${cm.id}')">
                         JSON
                     </button>
-                    <button class="btn btn--primary" onclick="editConceptMap('${cm.id}')">
+                    <button class="btn btn--primary btn--sm" onclick="editConceptMap('${cm.id}')">
                         Edit
                     </button>
-                    <button class="btn btn--danger" onclick="deleteConceptMap('${cm.id}')">
+                    <button class="btn btn--secondary btn--sm" onclick="deleteConceptMap('${cm.id}')">
                         Delete
                     </button>
                 </div>
             </div>
             <div class="card__body">
-                <div class="info-grid">
-                    <div class="info-item">
-                        <label>ID:</label>
-                        <span>${cm.id}</span>
+                <div class="result-metadata">
+                    <div class="metadata-item">
+                        <span class="metadata-label">ID:</span>
+                        <span class="metadata-value">${cm.id}</span>
                     </div>
-                    <div class="info-item">
-                        <label>Status:</label>
-                        <span class="badge badge--${cm.status === 'active' ? 'success' : 'warning'}">
+                    <div class="metadata-item">
+                        <span class="metadata-label">Status:</span>
+                        <span class="status status--${cm.status === 'active' ? 'success' : 'warning'}">
                             ${cm.status}
                         </span>
                     </div>
-                    <div class="info-item">
-                        <label>Version:</label>
-                        <span>${cm.version || 'N/A'}</span>
+                    <div class="metadata-item">
+                        <span class="metadata-label">Version:</span>
+                        <span class="metadata-value">${cm.version || 'N/A'}</span>
                     </div>
-                    <div class="info-item">
-                        <label>Elements:</label>
-                        <span>${cm.group && cm.group[0] ? cm.group[0].element.length : 0}</span>
+                    <div class="metadata-item">
+                        <span class="metadata-label">Elements:</span>
+                        <span class="metadata-value">${cm.group && cm.group[0] ? cm.group[0].element.length : 0}</span>
                     </div>
                 </div>
             </div>
@@ -565,7 +555,7 @@ async function editConceptMap(id) {
     if (!conceptMap) return;
 
     currentEditingId = id;
-    switchTab('create'); // Reuse create form for editing
+    switchTab('create');
 
     // Populate form with existing data
     populateFormWithConceptMap(conceptMap);
@@ -589,44 +579,35 @@ function populateFormWithConceptMap(conceptMap) {
         }
     });
 
-    // Populate source and target
-    const sourceInput = document.querySelector('[name="source"]');
-    const targetInput = document.querySelector('[name="target"]');
-    if (conceptMap.group && conceptMap.group[0]) {
-        if (sourceInput) sourceInput.value = conceptMap.group[0].source || 'NAMASTE';
-        if (targetInput) targetInput.value = conceptMap.group[0].target || 'ICD-11';
-    }
-
     // Clear existing elements
-    const elementsContainer = document.getElementById('elements-container');
-    if (elementsContainer) {
-        elementsContainer.innerHTML = '';
-    }
+    clearElements();
 
     // Populate elements
     if (conceptMap.group && conceptMap.group[0] && conceptMap.group[0].element) {
-        conceptMap.group[0].element.forEach(element => {
+        conceptMap.group[0].element.forEach((element, elementIndex) => {
             addElementToForm();
-            const elementRow = elementsContainer.lastElementChild;
+            const elementDiv = document.querySelectorAll('.element-group')[elementIndex];
             
             // Fill element data
-            elementRow.querySelector('[name^="element-code"]').value = element.code;
-            elementRow.querySelector('[name^="element-display"]').value = element.display;
+            elementDiv.querySelector('[name^="element-code"]').value = element.code;
+            elementDiv.querySelector('[name^="element-display"]').value = element.display;
 
             // Clear default target and add actual targets
-            const targetsContainer = elementRow.querySelector('.targets-container');
-            targetsContainer.innerHTML = '<h5>Targets:</h5>';
+            const targetsContainer = elementDiv.querySelector('.targets-container');
+            // Remove existing targets except h5
+            const existingTargets = targetsContainer.querySelectorAll('.target-group');
+            existingTargets.forEach(target => target.remove());
 
-            element.target.forEach(target => {
-                addTarget(elementRow.querySelector('button'));
-                const targetRow = targetsContainer.lastElementChild;
+            element.target.forEach((target, targetIndex) => {
+                addTarget(elementDiv.querySelector('button'));
+                const targetDiv = targetsContainer.querySelectorAll('.target-group')[targetIndex];
                 
-                targetRow.querySelector('[name^="target-code"]').value = target.code;
-                targetRow.querySelector('[name^="target-display"]').value = target.display;
-                targetRow.querySelector('[name^="target-equivalence"]').value = target.equivalence || 'equivalent';
+                targetDiv.querySelector('[name^="target-code"]').value = target.code;
+                targetDiv.querySelector('[name^="target-display"]').value = target.display;
+                targetDiv.querySelector('[name^="target-equivalence"]').value = target.equivalence || 'equivalent';
                 
                 if (target.extension && target.extension[0] && target.extension[0].valueDecimal) {
-                    targetRow.querySelector('[name^="target-similarity"]').value = target.extension[0].valueDecimal;
+                    targetDiv.querySelector('[name^="target-similarity"]').value = target.extension[0].valueDecimal;
                 }
             });
         });
@@ -657,20 +638,6 @@ function viewJsonDetails(id) {
     `);
 }
 
-// Translation functionality
-async function translateCode(code) {
-    try {
-        const response = await makeApiRequest('/ConceptMap/$translate', 'POST', {
-            code: code,
-            system: 'namaste'
-        });
-        return response.matches;
-    } catch (error) {
-        console.error('Translation failed:', error);
-        return [];
-    }
-}
-
 // Helper functions
 function renderConceptMapElements(conceptMap) {
     if (!conceptMap.group || !conceptMap.group[0] || !conceptMap.group[0].element) {
@@ -679,21 +646,24 @@ function renderConceptMapElements(conceptMap) {
 
     const elements = conceptMap.group[0].element;
     return `
-        <div class="elements-list">
+        <div class="mappings-section">
             <h4>Code Mappings (${elements.length} elements):</h4>
             ${elements.map(element => `
-                <div class="element-card">
+                <div class="mapping-element">
                     <div class="element-header">
-                        <strong>${element.code}</strong> - ${element.display}
+                        <div class="element-info">
+                            <span class="element-code">${element.code}</span>
+                            <span class="element-display">${element.display}</span>
+                        </div>
                     </div>
                     <div class="targets-list">
                         ${element.target ? element.target.map(target => `
                             <div class="target-item">
-                                <span class="target-code">${target.code}</span>
-                                <span class="target-display">${target.display}</span>
-                                <span class="badge badge--primary">${target.equivalence}</span>
+                                <span class="metadata-value">${target.code}</span>
+                                <span class="metadata-value">${target.display}</span>
+                                <span class="status status--primary">${target.equivalence}</span>
                                 ${target.extension && target.extension[0] ? 
-                                    `<span class="similarity">${target.extension[0].valueDecimal}%</span>` : 
+                                    `<span class="similarity-score">${target.extension[0].valueDecimal}%</span>` : 
                                     ''
                                 }
                             </div>
@@ -724,7 +694,7 @@ function updateStats() {
 function showLoading(show) {
     const loader = document.getElementById('loading');
     if (loader) {
-        loader.style.display = show ? 'block' : 'none';
+        loader.classList.toggle('hidden', !show);
     }
 }
 
@@ -736,10 +706,9 @@ function showToast(message, type = 'info') {
     const toast = document.createElement('div');
     toast.className = `toast toast--${type}`;
     toast.innerHTML = `
-        <div class="toast__content">
-            <span class="toast__message">${message}</span>
-            <button class="toast__close" onclick="this.parentElement.parentElement.remove()">Ã—</button>
-        </div>
+        <div class="toast-icon"></div>
+        <span class="toast-message">${message}</span>
+        <button class="toast-close" onclick="this.parentElement.remove()">Ã—</button>
     `;
 
     document.body.appendChild(toast);
@@ -753,47 +722,23 @@ function showToast(message, type = 'info') {
 }
 
 function showModal(title, content) {
-    // Remove existing modal
-    const existingModal = document.getElementById('modal');
-    if (existingModal) {
-        existingModal.remove();
+    const modal = document.getElementById('modal');
+    const modalTitle = document.getElementById('modal-title');
+    const modalBody = document.getElementById('modal-body');
+    
+    if (modal && modalTitle && modalBody) {
+        modalTitle.textContent = title;
+        modalBody.innerHTML = content;
+        modal.classList.remove('hidden');
     }
-
-    const modal = document.createElement('div');
-    modal.id = 'modal';
-    modal.className = 'modal';
-    modal.innerHTML = `
-        <div class="modal__backdrop" onclick="closeModal()"></div>
-        <div class="modal__content">
-            <div class="modal__header">
-                <h3>${title}</h3>
-                <button class="modal__close" onclick="closeModal()">Ã—</button>
-            </div>
-            <div class="modal__body">
-                ${content}
-            </div>
-        </div>
-    `;
-
-    document.body.appendChild(modal);
 }
 
 function closeModal() {
     const modal = document.getElementById('modal');
     if (modal) {
-        modal.remove();
+        modal.classList.add('hidden');
     }
 }
-
-// Initialize form with one empty element when create tab is loaded
-document.addEventListener('DOMContentLoaded', function() {
-    setTimeout(() => {
-        const elementsContainer = document.getElementById('elements-container');
-        if (elementsContainer && elementsContainer.children.length === 0) {
-            addElementToForm();
-        }
-    }, 100);
-});
 
 // Export functions for global access
 window.editConceptMap = editConceptMap;
@@ -803,3 +748,4 @@ window.removeElement = removeElement;
 window.addTarget = addTarget;
 window.removeTarget = removeTarget;
 window.closeModal = closeModal;
+window.clearElements = clearElements;
