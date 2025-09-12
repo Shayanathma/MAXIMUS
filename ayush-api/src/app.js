@@ -16,11 +16,19 @@ app.get('/search', async (req, res) => {
     const q = (req.query.term || '').trim();
     if (!q) return res.json({ results: [] });
     const like = '%' + q + '%';
-    const sql = `SELECT m.id, m.code, coalesce(m.name_english, m.word, m.name_diacritical) as term, m.description, m.system, s.term_id
-                 FROM morbidity_codes m
-                 LEFT JOIN standard_terms s ON m.standard_term_id = s.id
-                 WHERE m.name_english ILIKE $1 OR m.word ILIKE $1 OR m.name_diacritical ILIKE $1 OR s.word ILIKE $1
-                 LIMIT 50`;
+    const sql = `
+  SELECT m.morbidity_code,
+         m.term_name,
+         m.description,
+         m.system,
+         m.standard_term_id,
+         m.standard_word,
+         m.icd_code,
+         m.icd_title
+  FROM vw_morbidity_search m
+  WHERE m.term_name ILIKE $1 OR m.standard_word ILIKE $1
+  LIMIT 50
+`;
     const r = await db.query(sql, [like]);
     res.json({ results: r.rows });
   } catch (err) {
