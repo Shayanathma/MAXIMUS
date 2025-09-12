@@ -1,23 +1,22 @@
 import json
 import os
-from .schemas import ConceptMap
 
 # Path to the JSON ConceptMap
 concept_map_path = os.path.join(os.path.dirname(__file__), "..", "fhir.json")
 
 # Load ConceptMap at startup
-def load_conceptmaps():
+def load_conceptmap():
     try:
         with open(concept_map_path, encoding="utf-8") as f:
-            data = json.load(f)
-            return data
+            return json.load(f)
     except Exception as e:
         raise RuntimeError(f"Could not load ConceptMap: {e}")
 
-concept_map_data = load_conceptmaps()
+concept_map_data = load_conceptmap()
+
 
 # ------------------------
-# Translation function
+# Translate code
 # ------------------------
 def translate_code(code: str):
     matches = []
@@ -28,7 +27,7 @@ def translate_code(code: str):
                     similarity = None
                     for ext in target.get("extension", []):
                         if ext.get("url", "").endswith("similarity"):
-                            similarity = ext.get("valueDecimal")
+                            similarity = ext.get("valueDecimal", 0.0)
                     matches.append({
                         "code": target.get("code"),
                         "display": target.get("display"),
@@ -37,59 +36,33 @@ def translate_code(code: str):
                     })
     return matches
 
+
 # ------------------------
-# Simple patient symptom search (by similarity)
+# List all codes with full mapping details
 # ------------------------
-def search_symptom(symptom: str):
-    results = []
+def list_codes():
+    codes = []
     for group in concept_map_data.get("group", []):
         for element in group.get("element", []):
-            if symptom.lower() in element.get("display", "").lower():
-                results.append({
-                    "code": element.get("code"),
-                    "display": element.get("display")
+            namaste_code = element.get("code")
+            namaste_display = element.get("display")
+            for target in element.get("target", []):
+                similarity = None
+                for ext in target.get("extension", []):
+                    if ext.get("url", "").endswith("similarity"):
+                        similarity = ext.get("valueDecimal", 0.0)
+                codes.append({
+                    "namaste_code": namaste_code,
+                    "namaste_display": namaste_display,
+                    "icd_code": target.get("code"),
+                    "icd_display": target.get("display"),
+                    "similarity": similarity
                 })
-    return results
+    return codes
+
 
 # ------------------------
-# CRUD operations for ConceptMaps
+# Get all mappings (same as list_codes but can be used separately if needed)
 # ------------------------
-def get_all():
-    return [concept_map_data]
-
-def get_by_code(code: str):
-    for group in concept_map_data.get("group", []):
-        for element in group.get("element", []):
-            if element.get("code") == code:
-                return concept_map_data
-    return None
-
-def create_mapping(mapping: dict):
-    # Append new element to first group
-    if "group" not in concept_map_data:
-        concept_map_data["group"] = [{"source": "namaste", "target": "icd11", "element": []}]
-    concept_map_data["group"][0]["element"].append(mapping["group"][0]["element"][0])
-    save()
-    return mapping
-
-def update_mapping(code: str, mapping: dict):
-    for group in concept_map_data.get("group", []):
-        for i, element in enumerate(group.get("element", [])):
-            if element.get("code") == code:
-                group["element"][i] = mapping["group"][0]["element"][0]
-                save()
-                return mapping
-    return None
-
-def delete_mapping(code: str):
-    for group in concept_map_data.get("group", []):
-        for i, element in enumerate(group.get("element", [])):
-            if element.get("code") == code:
-                group["element"].pop(i)
-                save()
-                return True
-    return False
-
-def save():
-    with open(concept_map_path, "w", encoding="utf-8") as f:
-        json.dump(concept_map_data, f, indent=2)
+def get_all_mappings():
+    return list_codes()

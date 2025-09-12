@@ -1,50 +1,18 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 from typing import List, Optional
 
-# ------------------------
-# Nested FHIR structures
-# ------------------------
-class TargetExtension(BaseModel):
-    url: str
-    valueDecimal: Optional[float] = None
-
-class ElementTarget(BaseModel):
-    code: str
-    display: Optional[str] = None
-    equivalence: Optional[str] = None
-    extension: Optional[List[TargetExtension]] = None
-
-class ConceptMapElement(BaseModel):
-    code: str
-    display: Optional[str] = None
-    target: Optional[List[ElementTarget]] = None
-
-class ConceptMapGroup(BaseModel):
-    source: str
-    target: str
-    element: List[ConceptMapElement]
-
-# ------------------------
-# Full ConceptMap resource
-# ------------------------
-class ConceptMap(BaseModel):
-    resourceType: str = Field(default="ConceptMap")
-    id: str
-    url: Optional[str] = None
-    status: str
-    version: Optional[str] = None
-    name: Optional[str] = None
-    title: Optional[str] = None
-    date: Optional[str] = None
-    publisher: Optional[str] = None
-    group: List[ConceptMapGroup]
-
-# ------------------------
-# Requests
-# ------------------------
+# For /translate request
 class TranslateRequest(BaseModel):
     code: str
-    system: str = "namaste"
 
-class PatientSearchRequest(BaseModel):
-    symptom: str
+# For individual mapping in /codes
+class MappingItem(BaseModel):
+    namaste_code: str
+    namaste_display: str
+    icd_code: str
+    icd_display: str
+    similarity: Optional[float] = None
+
+# For /codes response
+class CodesResponse(BaseModel):
+    codes: List[MappingItem]
