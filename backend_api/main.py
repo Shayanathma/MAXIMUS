@@ -2,7 +2,7 @@ from fastapi import FastAPI, HTTPException, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 
-from . import crud, schemas
+import crud, schemas
 
 app = FastAPI(title="NAMASTE-ICD11 FHIR Terminology Service")
 
@@ -44,7 +44,6 @@ def require_login(token: str = Depends(oauth2_scheme)):
     if token not in logged_in_tokens:
         raise HTTPException(status_code=401, detail="Not logged in")
     return token
-
 
 # --- Secured Endpoints ---
 @app.get("/")
