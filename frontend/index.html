@@ -1,254 +1,144 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-color-scheme="light">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FHIR ConceptMap Manager</title>
+    <title>Namaste World - NAMASTE to ICD-11 Terminology Service</title>
     <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
-    <!-- Navigation -->
+    <!-- Navigation Bar -->
     <nav class="nav">
         <div class="nav-container">
             <div class="nav-brand">
-                <h2>FHIR ConceptMap Manager</h2>
+                <h2>Namaste World</h2>
             </div>
             <div class="nav-tabs">
                 <button class="nav-tab active" data-tab="home">Home</button>
-                <button class="nav-tab" data-tab="create">Create</button>
                 <button class="nav-tab" data-tab="search">Search</button>
-                <button class="nav-tab" data-tab="manage">Manage</button>
+                <button class="nav-tab" data-tab="view-mappings">View Mappings</button>
+                <button id="login-btn" class="btn btn--primary">Login</button>
             </div>
         </div>
     </nav>
 
-    <!-- Main Content -->
     <main class="main-content">
-        <!-- Home Section -->
-        <section id="home" class="tab-content active">
-            <div class="container">
+        <div class="container">
+            <!-- Home Tab -->
+            <div id="home" class="tab-content active">
                 <div class="welcome-section">
-                    <h1>Welcome to FHIR ConceptMap Manager</h1>
-                    <p>Manage and maintain FHIR ConceptMap resources with ease. Create, search, and manage terminology mappings between different coding systems.</p>
+                    <h1>Welcome to Namaste World</h1>
+                    <p>Bridge traditional AYUSH medicine with modern healthcare through intelligent terminology mapping
+                        between NAMASTE and ICD-11 classification systems.</p>
                 </div>
-                
+
                 <div class="stats-grid">
                     <div class="card stat-card">
-                        <div class="card__body">
-                            <h3>API Status</h3>
-                            <div class="status-indicator">
-                                <span class="status status--success" id="api-status">Checking...</span>
-                            </div>
+                        <h3>API Status</h3>
+                        <div class="status-indicator">
+                            <span id="api-status" class="status status--info">Checking...</span>
                         </div>
                     </div>
-                    
                     <div class="card stat-card">
-                        <div class="card__body">
-                            <h3>Total ConceptMaps</h3>
-                            <div class="stat-number" id="total-concepts">-</div>
-                        </div>
+                        <h3>Available Codes</h3>
+                        <div class="stat-number" id="total-codes">--</div>
                     </div>
-                    
                     <div class="card stat-card">
-                        <div class="card__body">
-                            <h3>Active Mappings</h3>
-                            <div class="stat-number" id="active-mappings">-</div>
-                        </div>
+                        <h3>Active Mappings</h3>
+                        <div class="stat-number" id="total-mappings">--</div>
                     </div>
                 </div>
 
                 <div class="card">
                     <div class="card__body">
-                        <h3>Getting Started</h3>
+                        <h2>Why This Software Matters</h2>
+                        <p>The integration of traditional AYUSH medicine with modern healthcare systems requires
+                            standardized terminology mapping. Our NAMASTE to ICD-11 service enables:</p>
                         <div class="feature-list">
                             <div class="feature-item">
-                                <strong>Create:</strong> Add new ConceptMap resources with code mappings
+                                <strong>Interoperability:</strong> Seamless integration between traditional AYUSH
+                                Electronic Medical Records (EMRs) and modern healthcare systems using FHIR-compliant
+                                terminology mapping.
                             </div>
                             <div class="feature-item">
-                                <strong>Search:</strong> Find ConceptMaps by code and view detailed information
+                                <strong>Insurance Processing:</strong> Enables insurance claims processing for AYUSH
+                                treatments by providing internationally recognized ICD-11 codes alongside traditional
+                                NAMASTE classifications.
                             </div>
                             <div class="feature-item">
-                                <strong>Manage:</strong> Edit, update, or delete existing ConceptMaps
+                                <strong>Research &amp; Analytics:</strong> Facilitates medical research and health
+                                analytics by bridging traditional medicine terminologies with standardized international
+                                classifications.
+                            </div>
+                            <div class="feature-item">
+                                <strong>Global Healthcare:</strong> Supports India's healthcare digitization goals by
+                                making traditional medicine data compatible with global health information systems.
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </section>
 
-        <!-- Create Section -->
-        <section id="create" class="tab-content">
-            <div class="container">
-                <h1>Create New ConceptMap</h1>
-                
-                <form id="create-form" class="concept-form">
-                    <div class="card">
-                        <div class="card__header">
-                            <h3>Basic Information</h3>
-                        </div>
-                        <div class="card__body">
-                            <div class="form-grid">
-                                <div class="form-group">
-                                    <label class="form-label" for="concept-id">ID*</label>
-                                    <input type="text" id="concept-id" class="form-control" required>
-                                </div>
-                                <div class="form-group">
-                                    <label class="form-label" for="concept-name">Name*</label>
-                                    <input type="text" id="concept-name" class="form-control" required>
-                                </div>
-                                <div class="form-group">
-                                    <label class="form-label" for="concept-title">Title*</label>
-                                    <input type="text" id="concept-title" class="form-control" required>
-                                </div>
-                                <div class="form-group">
-                                    <label class="form-label" for="concept-status">Status*</label>
-                                    <select id="concept-status" class="form-control" required>
-                                        <option value="">Select status</option>
-                                        <option value="active">Active</option>
-                                        <option value="draft">Draft</option>
-                                        <option value="retired">Retired</option>
-                                    </select>
-                                </div>
-                                <div class="form-group">
-                                    <label class="form-label" for="concept-version">Version</label>
-                                    <input type="text" id="concept-version" class="form-control" placeholder="1.0.0">
-                                </div>
-                                <div class="form-group">
-                                    <label class="form-label" for="concept-publisher">Publisher</label>
-                                    <input type="text" id="concept-publisher" class="form-control">
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="card">
-                        <div class="card__header">
-                            <h3>Source & Target Systems</h3>
-                        </div>
-                        <div class="card__body">
-                            <div class="form-grid">
-                                <div class="form-group">
-                                    <label class="form-label" for="source-system">Source System*</label>
-                                    <input type="text" id="source-system" class="form-control" required>
-                                </div>
-                                <div class="form-group">
-                                    <label class="form-label" for="target-system">Target System*</label>
-                                    <input type="text" id="target-system" class="form-control" required>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="card">
-                        <div class="card__header">
-                            <div class="flex justify-between items-center">
-                                <h3>Code Mappings</h3>
-                                <button type="button" class="btn btn--secondary btn--sm" id="add-element">Add Element</button>
-                            </div>
-                        </div>
-                        <div class="card__body">
-                            <div id="elements-container">
-                                <!-- Dynamic elements will be added here -->
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="form-actions">
-                        <button type="submit" class="btn btn--primary">Create ConceptMap</button>
-                        <button type="reset" class="btn btn--outline">Clear Form</button>
-                    </div>
-                </form>
-            </div>
-        </section>
-
-        <!-- Search Section -->
-        <section id="search" class="tab-content">
-            <div class="container">
-                <h1>Search ConceptMaps</h1>
-                
+            <!-- Search Tab -->
+            <div id="search" class="tab-content">
                 <div class="card">
                     <div class="card__body">
+                        <h2>Search NAMASTE Code</h2>
+                        <p>Enter a NAMASTE code to find its corresponding ICD-11 mapping and similarity score.</p>
                         <form id="search-form" class="search-form">
-                            <div class="form-group">
-                                <label class="form-label" for="search-code">Search by Code</label>
-                                <div class="search-input-group">
-                                    <input type="text" id="search-code" class="form-control" placeholder="Enter code to search...">
-                                    <button type="submit" class="btn btn--primary">Search</button>
-                                </div>
+                            <div class="search-input-group">
+                                <input type="text" id="search-input" class="form-control"
+                                    placeholder="Enter NAMASTE code (e.g., AAC-27(SM83))" required>
+                                <button type="submit" class="btn btn--primary">Search</button>
                             </div>
                         </form>
                     </div>
                 </div>
 
-                <div id="search-results" class="search-results hidden">
-                    <h3>Search Results</h3>
-                    <div id="results-container"></div>
+                <div id="search-results" class="search-results">
+                    <!-- Search results will be populated here -->
                 </div>
             </div>
-        </section>
 
-        <!-- Manage Section -->
-        <section id="manage" class="tab-content">
-            <div class="container">
-                <h1>Manage ConceptMaps</h1>
-                
+            <!-- View Mappings Tab -->
+            <div id="view-mappings" class="tab-content">
                 <div class="card">
-                    <div class="card__header">
-                        <div class="flex justify-between items-center">
-                            <h3>All ConceptMaps</h3>
-                            <button class="btn btn--primary btn--sm" id="refresh-list">Refresh</button>
-                        </div>
-                    </div>
                     <div class="card__body">
-                        <div class="table-container">
-                            <table class="concept-table" id="concepts-table">
-                                <thead>
-                                    <tr>
-                                        <th>ID</th>
-                                        <th>Name</th>
-                                        <th>Status</th>
-                                        <th>Version</th>
-                                        <th>Publisher</th>
-                                        <th>Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="concepts-tbody">
-                                    <!-- Dynamic content will be loaded here -->
-                                </tbody>
-                            </table>
+                        <h2>All NAMASTE to ICD-11 Mappings</h2>
+                        <p>Complete overview of all available terminology mappings with similarity scores.</p>
+                        <div class="form-actions">
+                            <button id="load-mappings-btn" class="btn btn--primary">Load All Mappings</button>
+                            <button id="refresh-mappings-btn" class="btn btn--secondary">Refresh</button>
                         </div>
                     </div>
                 </div>
-            </div>
-        </section>
-    </main>
 
-    <!-- Delete Confirmation Modal -->
-    <div id="delete-modal" class="modal hidden">
-        <div class="modal-overlay"></div>
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3>Confirm Delete</h3>
-            </div>
-            <div class="modal-body">
-                <p>Are you sure you want to delete this ConceptMap? This action cannot be undone.</p>
-                <p><strong id="delete-concept-name"></strong></p>
-            </div>
-            <div class="modal-footer">
-                <button class="btn btn--outline" id="cancel-delete">Cancel</button>
-                <button class="btn btn--primary" id="confirm-delete">Delete</button>
+                <div id="mappings-container">
+                    <!-- Mappings will be populated here -->
+                </div>
             </div>
         </div>
-    </div>
-
-    <!-- Toast Notifications -->
-    <div id="toast-container" class="toast-container"></div>
+    </main>
 
     <!-- Loading Spinner -->
     <div id="loading-spinner" class="loading-spinner hidden">
         <div class="spinner"></div>
     </div>
 
+    <!-- Toast Container -->
+    <div id="toast-container" class="toast-container"></div>
+
     <script src="app.js"></script>
+    <script>
+        // Redirect login button to login.html
+        const loginBtn = document.getElementById('login-btn');
+        if (loginBtn) {
+            loginBtn.addEventListener('click', () => {
+                window.location.href = 'login.html';
+            });
+        }
+    </script>
 </body>
 </html>
